@@ -245,6 +245,8 @@ function buildFichaHTML(sp) {
   if (sp.alimentacion) sections.push(`<div class="fsection"><h4>Alimentación</h4><p>${esc(sp.alimentacion)}</p></div>`);
   if (sp.amenazas) sections.push(`<div class="fsection"><h4>Factores de amenaza</h4><p>${esc(sp.amenazas)}</p></div>`);
   if (sp.conservacion) sections.push(`<div class="fsection"><h4>Medidas de conservación</h4><p>${esc(sp.conservacion)}</p></div>`);
+  if (sp.prioritaria_conservacion) sections.push(`<div class="fsection"><h4>Prioritaria para la conservación</h4><p>${esc(sp.prioritaria_conservacion)}</p></div>`);
+  if (sp.notas) sections.push(`<div class="fsection"><h4>Notas adicionales</h4><p>${esc(sp.notas)}</p></div>`);
 
   const sinFicha = !sp.descripcion
     ? `<div class="doc-note">Esta especie fue incorporada al listado a partir del cruce con la NOM-059-SEMARNAT-2010; aún no cuenta con ficha descriptiva narrativa en este catálogo.</div>`
