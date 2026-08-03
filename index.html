@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Especies en Riesgo de Aguascalientes — IMBIO</title>
+<meta name="description" content="Catálogo interactivo de las especies en riesgo y prioritarias del estado de Aguascalientes: 73 especies del catálogo 2008, contrastadas una por una contra la NOM-059-SEMARNAT-2010 vigente.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=1">
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wrap">
+    <a class="brand" href="index.html">🦅 Especies en Riesgo de Aguascalientes</a>
+    <a class="navlink" href="metodologia.html">Metodología</a>
+  </div>
+</nav>
+
+<header class="hero riesgo">
+  <div class="wrap">
+    <div class="eyebrow">H. Ayuntamiento de Pabellón de Arteaga · Instituto Municipal de Biodiversidad y Protección Ambiental (IMBIO)</div>
+    <h1>Especies en Riesgo de Aguascalientes</h1>
+    <p class="lead">Catálogo de especies en riesgo y prioritarias elaborado originalmente en 2008, contrastado especie por especie contra la NOM-059-SEMARNAT-2010, la norma vigente que reemplazó a la de 2001. Cada ficha muestra el estatus con el que se catalogó originalmente y su situación legal actual.</p>
+    <div>
+      <div class="stat"><b>73</b>especies catalogadas</div>
+      <div class="stat"><b>6</b>grupos taxonómicos</div>
+      <div class="stat"><b>2010</b>norma vigente de contraste</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section>
+  <div class="wrap">
+    <div class="toolbar">
+      <input type="text" id="search-input" placeholder="Buscar por nombre común, científico, familia u orden…">
+    </div>
+
+    <div class="chipbar">
+      <span class="chip sel" data-grupo="todas">🔎 Todas</span>
+      <span class="chip" data-grupo="Anfibios">🐸 Anfibios</span>
+      <span class="chip" data-grupo="Aves">🐦 Aves</span>
+      <span class="chip" data-grupo="Mamiferos">🦊 Mamíferos</span>
+      <span class="chip" data-grupo="Peces">🐟 Peces</span>
+      <span class="chip" data-grupo="Reptiles">🦎 Reptiles</span>
+      <span class="chip" data-grupo="Plantas">🌿 Plantas y hongos</span>
+    </div>
+
+    <div class="chipbar">
+      <span class="chip sel" data-filter="todas">Todos los estatus</span>
+      <span class="chip" data-filter="peligro">En Peligro (P)</span>
+      <span class="chip" data-filter="amenazada">Amenazada (A)</span>
+      <span class="chip" data-filter="proteccion">Protección especial (Pr)</span>
+      <span class="chip" data-filter="endemicas">Endémicas</span>
+      <span class="chip" data-filter="excluidas">Excluidas en 2010</span>
+    </div>
+
+    <div class="leyenda-cat">
+      <span><span class="dot p"></span> P — En Peligro de Extinción</span>
+      <span><span class="dot a"></span> A — Amenazada</span>
+      <span><span class="dot pr"></span> Pr — Sujeta a Protección Especial</span>
+      <span><span class="dot e"></span> E — Probablemente Extinta</span>
+      <span><span class="dot delisted"></span> Excluida de la NOM-059-2010</span>
+    </div>
+
+    <div class="resultcount" id="resultcount"></div>
+    <div class="sp-grid" id="sp-grid"></div>
+
+    <div class="pager">
+      <button id="pager-prev">← Anterior</button>
+      <span id="pager-info"></span>
+      <button id="pager-next">Siguiente →</button>
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff">
+  <div class="wrap">
+    <h2 style="color:var(--verde-osc)">Acerca de este catálogo</h2>
+    <p style="max-width:800px;color:var(--muted)">Este catálogo digitaliza el <em>Catálogo de Especies en Riesgo y Prioritarias del Estado de Aguascalientes</em>, elaborado en 2008 con base en la NOM-059-SEMARNAT-2001. Cada una de las 73 especies fue verificada individualmente contra la <strong>NOM-059-SEMARNAT-2010</strong> (la actualización vigente), documentando cambios de categoría, exclusiones de la lista y correcciones taxonómicas ocurridas en esos años. Consulta la <a href="metodologia.html">metodología completa</a> para más detalle. Las fotografías se obtienen en vivo de iNaturalist y Wikipedia; cada ficha enlaza además a iNaturalist, GBIF y Wikipedia para consulta y verificación.</p>
+  </div>
+</section>
+
+</main>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="ficha" id="ficha"></div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div><b>Instituto Municipal de Biodiversidad y Protección Ambiental (IMBIO)</b> · H. Ayuntamiento de Pabellón de Arteaga</div>
+    <div class="fnote">Catálogo original 2008 verificado y actualizado contra la NOM-059-SEMARNAT-2010. Fotografías cortesía de iNaturalist y Wikipedia — cada ficha enlaza a la fuente original.</div>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script>initCatalogo();</script>
+
+</body>
+</html>
