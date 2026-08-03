@@ -1,10 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────
 // Especies en Riesgo de Aguascalientes — IMBIO
-// Catálogo interactivo basado en el "Catálogo de Especies en Riesgo y
-// Prioritarias del Estado de Aguascalientes" (2008), contrastado especie
-// por especie contra la NOM-059-SEMARNAT-2010 vigente. Sin backend: corre
-// en el navegador, resolviendo fotos en vivo contra iNaturalist/Wikipedia,
-// igual que el Catálogo de Biodiversidad de Aguascalientes.
+// Catálogo de las especies del estado incluidas en la NOM-059-SEMARNAT-2010
+// vigente, con base en el listado verificado por IMAE/SEMARNAT. Sin
+// backend: corre en el navegador, resolviendo fotos en vivo contra
+// iNaturalist/Wikipedia, igual que el Catálogo de Biodiversidad de
+// Aguascalientes.
 // ─────────────────────────────────────────────────────────────────────────
 
 const GRUPOS = {
@@ -184,25 +184,24 @@ function esc(s) {
 }
 
 function badgeEstatus2010(sp) {
-  if (sp.delisted_2010) return '<span class="badge delisted">Excluida de la NOM-059-2010</span>';
   if (!sp.estatus_2010_codigo) return '';
   const cls = sp.estatus_2010_codigo.toLowerCase();
-  return `<span class="badge ${cls}">NOM-059-2010: ${esc(sp.estatus_2010_codigo)} — ${esc(sp.estatus_2010_label)}</span>`;
+  return `<span class="badge ${cls}">${esc(sp.estatus_2010_codigo)} — ${esc(sp.estatus_2010_label)}</span>`;
 }
 
 // ── Tarjeta ────────────────────────────────────────────────────────────
 function speciesCardHTML(sp) {
   const g = GRUPOS[sp.grupo] || { icon: '🔎' };
   const badges = [];
-  if (sp.endemismo_2010 === 'endémica') badges.push('<span class="badge end">Endémica</span>');
   badges.push(badgeEstatus2010(sp));
+  if (sp.endemica === true) badges.push('<span class="badge end">Endémica</span>');
 
   return `
   <div class="sp-card" data-uid="${esc(sp.uid)}">
-    <div class="sp-thumb" data-cientifico="${esc(sp.nombre_busqueda)}" data-icon="${g.icon}">${g.icon}</div>
+    <div class="sp-thumb" data-cientifico="${esc(sp.nombre_cientifico)}" data-icon="${g.icon}">${g.icon}</div>
     <div class="sp-body">
-      <div class="comun">${esc(sp.nombre_comun || sp.nombre_cientifico_2008)}</div>
-      <div class="cientifico">${esc(sp.nombre_cientifico_2008)}</div>
+      <div class="comun">${esc(sp.nombre_comun || sp.nombre_cientifico)}</div>
+      <div class="cientifico">${esc(sp.nombre_cientifico)}</div>
       <div class="sp-badges">${badges.join('')}</div>
     </div>
   </div>`;
@@ -217,41 +216,26 @@ function tField(label, value) {
 function buildFichaHTML(sp) {
   const g = GRUPOS[sp.grupo] || { icon: '🔎' };
   const tx = sp.taxonomia || {};
-  const taxoRows = [
+
+  const badges = [];
+  badges.push(badgeEstatus2010(sp));
+  if (sp.endemica === true) badges.push('<span class="badge end">Endémica</span>');
+  if (sp.iucn) badges.push(`<span class="badge nom">IUCN: ${esc(sp.iucn)}</span>`);
+  if (sp.cites) badges.push(`<span class="badge nom">CITES: ${esc(sp.cites)}</span>`);
+
+  const identRows = [
     tField('Reino / Phylum', tx.reino_phylum),
     tField('Clase', tx.clase),
     tField('Orden', tx.orden),
     tField('Familia', tx.familia),
-    tField('Subfamilia', tx.subfamilia),
-    tField('Género', tx.genero),
+    tField('Categoría NOM-059-2010', sp.estatus_2010_codigo ? `${sp.estatus_2010_codigo} — ${sp.estatus_2010_label}` : null),
+    tField('Endemismo', sp.endemica === true ? 'Endémica' : (sp.endemica === false ? 'No endémica' : null)),
+    tField('Lista Roja IUCN', sp.iucn),
+    tField('CITES', sp.cites),
   ].join('');
 
-  const badges = [];
-  if (sp.endemismo_2010 === 'endémica') badges.push('<span class="badge end">Endémica</span>');
-  badges.push(badgeEstatus2010(sp));
-  if (sp.iucn) badges.push(`<span class="badge nom">IUCN: ${esc(sp.iucn)}</span>`);
-  if (sp.cites) badges.push(`<span class="badge nom">CITES: ${esc(sp.cites)}</span>`);
-
-  const notaTaxo = sp.nota_taxonomica
-    ? `<div class="nota-taxo">🔎 <strong>Nota taxonómica:</strong> ${esc(sp.nota_taxonomica)}</div>`
-    : '';
-
-  const estatus2010Texto = sp.delisted_2010
-    ? 'No aparece en la NOM-059-SEMARNAT-2010 vigente (fue excluida de la lista).'
-    : (sp.estatus_2010_codigo ? `${esc(sp.estatus_2010_codigo)} — ${esc(sp.estatus_2010_label)}${sp.endemismo_2010 ? ' · ' + esc(sp.endemismo_2010) : ''}` : 'Sin dato');
-
-  const compareBox = `
-    <div class="compare-box">
-      <div class="col">
-        <div class="yr">Catálogo 2008 (NOM-059-2001)</div>
-        <div class="val">${esc(sp.estatus_2001 || 'Sin dato')}</div>
-      </div>
-      <div class="col">
-        <div class="yr">Vigente (NOM-059-2010)</div>
-        <div class="val">${estatus2010Texto}</div>
-      </div>
-    </div>`;
-
+  // Orden de lectura: qué es (descripción), dónde vive (hábitat/distribución),
+  // por qué está en riesgo (amenazas), qué se hace al respecto (conservación).
   const sections = [];
   if (sp.descripcion) sections.push(`<div class="fsection"><h4>Descripción</h4><p>${esc(sp.descripcion)}</p></div>`);
   if (sp.habitat) sections.push(`<div class="fsection"><h4>Hábitat</h4><p>${esc(sp.habitat)}</p></div>`);
@@ -260,7 +244,11 @@ function buildFichaHTML(sp) {
   if (sp.amenazas) sections.push(`<div class="fsection"><h4>Factores de amenaza</h4><p>${esc(sp.amenazas)}</p></div>`);
   if (sp.conservacion) sections.push(`<div class="fsection"><h4>Medidas de conservación</h4><p>${esc(sp.conservacion)}</p></div>`);
 
-  const q = encodeURIComponent(sp.nombre_busqueda || sp.nombre_cientifico_2008);
+  const sinFicha = !sp.descripcion
+    ? `<div class="doc-note">Esta especie fue incorporada al listado a partir del cruce con la NOM-059-SEMARNAT-2010; aún no cuenta con ficha descriptiva narrativa en este catálogo.</div>`
+    : '';
+
+  const q = encodeURIComponent(sp.nombre_cientifico);
   const links = [
     `<a href="https://www.inaturalist.org/taxa/search?q=${q}" target="_blank" rel="noopener">🔎 iNaturalist</a>`,
     `<a href="https://www.gbif.org/species/search?q=${q}" target="_blank" rel="noopener">🌍 GBIF</a>`,
@@ -273,13 +261,12 @@ function buildFichaHTML(sp) {
       <div class="ficha-photo" id="ficha-photo">${g.icon}</div>
     </div>
     <div class="ficha-body">
-      <h2>${esc(sp.nombre_comun || sp.nombre_cientifico_2008)}</h2>
-      <div class="cientifico">${esc(sp.nombre_cientifico_2008)}${sp.nota_taxonomica ? ' *' : ''}</div>
+      <h2>${esc(sp.nombre_comun || sp.nombre_cientifico)}</h2>
+      <div class="cientifico">${esc(sp.nombre_cientifico_completo || sp.nombre_cientifico)}</div>
       <div class="ficha-badges">${badges.join('')}</div>
-      ${notaTaxo}
-      <div class="fsection"><h4>Contraste NOM-059: 2001 → 2010</h4>${compareBox}</div>
-      <div class="fsection"><h4>Taxonomía</h4><table class="ftable">${taxoRows}</table></div>
+      <div class="fsection"><h4>Ficha técnica</h4><table class="ftable">${identRows}</table></div>
       ${sections.join('')}
+      ${sinFicha}
       <div class="fsection"><h4>Más información</h4><div class="flinks">${links.join('')}</div></div>
     </div>`;
 }
@@ -295,7 +282,7 @@ function openFicha(uid) {
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   _galleryIdx = 0;
-  resolveSpeciesGallery(sp.nombre_busqueda || sp.nombre_cientifico_2008).then((items) => {
+  resolveSpeciesGallery(sp.nombre_cientifico).then((items) => {
     const gal = document.getElementById('ficha-gallery');
     if (!gal || !items.length) return;
     const alt = esc(sp.nombre_comun || sp.nombre_cientifico_2008);
@@ -352,18 +339,16 @@ function matchesQuery(sp, q) {
   if (!q) return true;
   q = q.toLowerCase();
   return (sp.nombre_comun || '').toLowerCase().includes(q)
-    || (sp.nombre_cientifico_2008 || '').toLowerCase().includes(q)
-    || (sp.nombre_cientifico_actual || '').toLowerCase().includes(q)
+    || (sp.nombre_cientifico || '').toLowerCase().includes(q)
     || ((sp.taxonomia && sp.taxonomia.familia) || '').toLowerCase().includes(q)
     || ((sp.taxonomia && sp.taxonomia.orden) || '').toLowerCase().includes(q);
 }
 
 function applyFilter(list, filter) {
-  if (filter === 'endemicas') return list.filter((s) => s.endemismo_2010 === 'endémica');
+  if (filter === 'endemicas') return list.filter((s) => s.endemica === true);
   if (filter === 'peligro') return list.filter((s) => s.estatus_2010_codigo === 'P');
   if (filter === 'amenazada') return list.filter((s) => s.estatus_2010_codigo === 'A');
   if (filter === 'proteccion') return list.filter((s) => s.estatus_2010_codigo === 'Pr');
-  if (filter === 'excluidas') return list.filter((s) => s.delisted_2010);
   return list;
 }
 
