@@ -25,7 +25,14 @@ async function cargarEspecies() {
 }
 
 // ── Resolución de fotos (idéntico al Catálogo de Biodiversidad) ──────────
-const IMG_CACHE_KEY = 'imbio_riesgo_img_cache_v2';
+function _pickBestTaxon(results, nombreCientifico) {
+  if (!results || !results.length) return null;
+  const target = (nombreCientifico || '').trim().toLowerCase();
+  const exact = results.find((t) => (t.name || '').trim().toLowerCase() === target);
+  return exact || results[0];
+}
+
+const IMG_CACHE_KEY = 'imbio_riesgo_img_cache_v3';
 function _imgCache() {
   try { return JSON.parse(localStorage.getItem(IMG_CACHE_KEY) || '{}'); } catch (e) { return {}; }
 }
@@ -44,10 +51,10 @@ async function resolveSpeciesPhoto(nombreCientifico) {
   if (key in cache) return cache[key] || null;
 
   try {
-    const r = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(nombreCientifico)}&rank=species,genus&per_page=1`);
+    const r = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(nombreCientifico)}&rank=species,genus&per_page=5`);
     if (r.ok) {
       const d = await r.json();
-      const t = d.results && d.results[0];
+      const t = _pickBestTaxon(d.results, nombreCientifico);
       const photo = t && t.default_photo && (t.default_photo.medium_url || t.default_photo.square_url);
       if (photo) { _imgCacheSet(key, photo); return photo; }
     }
@@ -75,7 +82,7 @@ async function resolveSpeciesPhoto(nombreCientifico) {
   return null;
 }
 
-const GALLERY_CACHE_KEY = 'imbio_riesgo_gallery_cache_v2';
+const GALLERY_CACHE_KEY = 'imbio_riesgo_gallery_cache_v3';
 function _galleryCache() {
   try { return JSON.parse(localStorage.getItem(GALLERY_CACHE_KEY) || '{}'); } catch (e) { return {}; }
 }
@@ -106,10 +113,10 @@ async function resolveSpeciesGallery(nombreCientifico) {
   };
 
   try {
-    const r1 = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(nombreCientifico)}&rank=species,genus&per_page=1`);
+    const r1 = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(nombreCientifico)}&rank=species,genus&per_page=5`);
     if (r1.ok) {
       const d1 = await r1.json();
-      const found = d1.results && d1.results[0];
+      const found = _pickBestTaxon(d1.results, nombreCientifico);
       if (found) {
         try {
           const r2 = await fetch(`https://api.inaturalist.org/v1/taxa/${found.id}`);
