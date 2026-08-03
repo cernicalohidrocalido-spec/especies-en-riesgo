@@ -25,7 +25,7 @@ async function cargarEspecies() {
 }
 
 // ── Resolución de fotos (idéntico al Catálogo de Biodiversidad) ──────────
-const IMG_CACHE_KEY = 'imbio_riesgo_img_cache_v1';
+const IMG_CACHE_KEY = 'imbio_riesgo_img_cache_v2';
 function _imgCache() {
   try { return JSON.parse(localStorage.getItem(IMG_CACHE_KEY) || '{}'); } catch (e) { return {}; }
 }
@@ -75,7 +75,7 @@ async function resolveSpeciesPhoto(nombreCientifico) {
   return null;
 }
 
-const GALLERY_CACHE_KEY = 'imbio_riesgo_gallery_cache_v1';
+const GALLERY_CACHE_KEY = 'imbio_riesgo_gallery_cache_v2';
 function _galleryCache() {
   try { return JSON.parse(localStorage.getItem(GALLERY_CACHE_KEY) || '{}'); } catch (e) { return {}; }
 }
@@ -241,6 +241,8 @@ function buildFichaHTML(sp) {
   if (sp.habitat) sections.push(`<div class="fsection"><h4>Hábitat</h4><p>${esc(sp.habitat)}</p></div>`);
   if (sp.distribucion_texto) sections.push(`<div class="fsection"><h4>Área de distribución</h4><p>${esc(sp.distribucion_texto)}</p></div>`);
   if (sp.distribucion_ags) sections.push(`<div class="fsection"><h4>Distribución en Aguascalientes</h4><p>${esc(sp.distribucion_ags)}</p></div>`);
+  if (sp.reproduccion) sections.push(`<div class="fsection"><h4>Reproducción</h4><p>${esc(sp.reproduccion)}</p></div>`);
+  if (sp.alimentacion) sections.push(`<div class="fsection"><h4>Alimentación</h4><p>${esc(sp.alimentacion)}</p></div>`);
   if (sp.amenazas) sections.push(`<div class="fsection"><h4>Factores de amenaza</h4><p>${esc(sp.amenazas)}</p></div>`);
   if (sp.conservacion) sections.push(`<div class="fsection"><h4>Medidas de conservación</h4><p>${esc(sp.conservacion)}</p></div>`);
 
